@@ -10,7 +10,8 @@ import { NewsFeed } from "@/components/news-feed"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getAllIndicators, getYieldCurve, getMockData } from "@/lib/data"
 import { getScraperData } from "@/lib/scraper-data"
-import type { ScraperData, NewsArticle } from "@/lib/scraper-types"
+import type { ScraperData } from "@/lib/scraper-types"
+import type { NewsArticle } from "@/components/news-card"
 
 // ISR: Revalidate every 24 hours
 export const revalidate = 86400
@@ -74,11 +75,21 @@ async function DashboardContent() {
     : []
 
   // Transform scraper news data for NewsFeed
+  const toNewsArticle = (a: { title: string; summary?: string | null; timestamp: string; url: string; source?: string | null; category?: string | null }): NewsArticle => ({
+    id: a.url,
+    title: a.title,
+    summary: a.summary || "",
+    source: a.source || "Unknown",
+    url: a.url,
+    publishedAt: a.timestamp,
+    category: a.category || undefined,
+  })
+
   const newsArticles: NewsArticle[] = scraperData
     ? [
-        ...scraperData.market_headlines.map((a) => ({ ...a, id: a.url })),
-        ...scraperData.earnings_announcements.map((a) => ({ ...a, id: a.url })),
-        ...scraperData.dividend_news.map((a) => ({ ...a, id: a.url })),
+        ...scraperData.market_headlines.map(toNewsArticle),
+        ...scraperData.earnings_announcements.map(toNewsArticle),
+        ...scraperData.dividend_news.map(toNewsArticle),
       ]
     : []
 
@@ -90,7 +101,7 @@ async function DashboardContent() {
       summary: "Federal Reserve officials indicated they're considering lowering interest rates as recent data shows inflation continuing to moderate.",
       source: "Bloomberg",
       url: "https://example.com/1",
-      publishedAt: new Date(Date.now - 2 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
       category: "Market Headlines",
     },
     {
@@ -99,7 +110,7 @@ async function DashboardContent() {
       summary: "Apple Inc. announced quarterly earnings that exceeded analyst expectations, driven by strong growth in services and wearables.",
       source: "CNBC",
       url: "https://example.com/2",
-      publishedAt: new Date(Date.now - 5 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
       category: "Earnings",
     },
     {
@@ -108,7 +119,7 @@ async function DashboardContent() {
       summary: "Charles Schwab Corp. declared a special dividend for shareholders as the company reports strong quarterly results.",
       source: "Reuters",
       url: "https://example.com/3",
-      publishedAt: new Date(Date.now - 8 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
       category: "Dividends",
     },
     {
@@ -117,7 +128,7 @@ async function DashboardContent() {
       summary: "Major technology companies saw significant gains as investors bet on artificial intelligence growth opportunities.",
       source: "WSJ",
       url: "https://example.com/4",
-      publishedAt: new Date(Date.now - 12 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
       category: "Market Headlines",
     },
   ]

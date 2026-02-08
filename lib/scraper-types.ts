@@ -106,7 +106,7 @@ export interface ScraperData {
 /**
  * Helper type for macro indicators by country key
  */
-export type MacroKey = `macro_${CountryCode.toLowerCase()}`;
+export type MacroKey = `macro_${Lowercase<CountryCode>}`;
 
 /**
  * Helper function to get all macro indicators from ScraperData
@@ -114,7 +114,7 @@ export type MacroKey = `macro_${CountryCode.toLowerCase()}`;
 export function getAllMacroIndicators(data: ScraperData): MacroIndicator[] {
   const macroKeys = Object.keys(data).filter((key) =>
     key.startsWith('macro_')
-  ) as (keyof Pick<ScraperData, `macro_${CountryCode}`>)[];
+  ) as (keyof Pick<ScraperData, `macro_${Lowercase<CountryCode>}`>)[];
   return macroKeys.flatMap((key) => data[key]);
 }
 

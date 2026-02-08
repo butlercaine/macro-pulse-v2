@@ -1,4 +1,4 @@
-import { put, Blob } from '@vercel/blob';
+import { put } from '@vercel/blob';
 import { ScraperData } from './scraper-types';
 
 const BLOB_URL = process.env.BLOB_READ_WRITE_TOKEN

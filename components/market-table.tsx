@@ -171,4 +171,4 @@ export function MarketTable({ instruments, className }: MarketTableProps) {
   )
 }
 
-export type { MarketTableProps, MarketInstrument }
+export type { MarketTableProps }
