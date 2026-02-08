@@ -52,7 +52,7 @@ async function DashboardContent() {
   }
 
   // Get last updated timestamp from scraper data or current time
-  const lastUpdated = scraperData?.metadata?.timestamp as string | undefined
+  const lastUpdated = scraperData?.metadata?.timestamp
     ? new Date(scraperData.metadata.timestamp as string).toISOString()
     : new Date().toISOString()
 
