@@ -1,0 +1,80 @@
+# GitHub Actions CI Workflow
+# Runs linting and type-checking on pull requests
+
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint-and-types:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          cd scraper
+          pip install ruff flake8
+          pip install -r requirements.txt
+
+      - name: Run Python lint (ruff)
+        run: |
+          cd scraper
+          ruff check .
+          ruff format --check .
+
+      - name: Run Python type check (pyright or mypy)
+        run: |
+          cd scraper
+          pip install pyright
+          pyright .
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run TypeScript type check
+        run: npm run type-check
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: lint-results
+          path: |
+            scraper/.ruff_cache
+            node_modules/.cache
+
+      - name: Fail workflow on errors
+        if: failure()
+        run: |
+          echo "::error::Lint or type-check failed. See above for details."
+          exit 1
