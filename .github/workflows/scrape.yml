@@ -36,24 +36,20 @@ jobs:
           pip install -r requirements.txt
           playwright install chromium
 
-      - name: Run scraper
+      - name: Run scraper and upload to Vercel Blob
         env:
-          # Optional: Add any environment variables needed
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          BLOB_STORE_ID: ${{ secrets.BLOB_STORE_ID }}
         run: |
           cd scraper
-          python -m scraper --output latest.json
-
-      - name: Upload to Vercel Blob
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./scraper
+          python -m scraper --output latest.json --blob
 
       - name: Trigger revalidation
-        uses: distribution/gh-action@revalidate@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: /api/revalidate
+        if: success()
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+          REVALIDATION_SECRET: ${{ secrets.REVALIDATION_SECRET }}
+        run: |
+          curl -sf -X POST "${DEPLOY_URL}/api/revalidate?secret=${REVALIDATION_SECRET}" \
+            -H "Content-Type: application/json" \
+            --max-time 30
