@@ -39,11 +39,16 @@ async function DashboardContent() {
     yieldCurve = yieldCurveResult
     scraperData = scraperResult
 
-    // Fall back to mock data if FRED fetch failed
-    if (!indicators || !yieldCurve) {
+    // Fall back to mock data if FRED fetch failed or returned empty
+    if (!indicators || !Array.isArray(indicators) || indicators.length === 0 ||
+        !yieldCurve || !Array.isArray(yieldCurve) || yieldCurve.length === 0) {
       const mockData = getMockData()
-      indicators = indicators || mockData.indicators
-      yieldCurve = yieldCurve || mockData.yieldCurve
+      if (!indicators || !Array.isArray(indicators) || indicators.length === 0) {
+        indicators = mockData.indicators
+      }
+      if (!yieldCurve || !Array.isArray(yieldCurve) || yieldCurve.length === 0) {
+        yieldCurve = mockData.yieldCurve
+      }
     }
   } catch (e) {
     error = e instanceof Error ? e : new Error("Failed to fetch data")
